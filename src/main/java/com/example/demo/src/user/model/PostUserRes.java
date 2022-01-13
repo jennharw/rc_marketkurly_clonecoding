@@ -12,4 +12,8 @@ import lombok.Setter;
 public class PostUserRes {
     private String jwt;
     private int userIdx;
+
+    public PostUserRes(int userIdx) {
+        this.userIdx = userIdx;
+    }
 }

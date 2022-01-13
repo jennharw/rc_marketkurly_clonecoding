@@ -35,6 +35,11 @@ public class UserService {
 
     //POST
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
+        if (userProvider.checkUsername(postUserReq.getUsername()) == 1){
+            throw new BaseException(POST_USERS_EXISTS_USERNAME);
+
+        }
+
         //중복
         if(userProvider.checkEmail(postUserReq.getEmail()) ==1){
             throw new BaseException(POST_USERS_EXISTS_EMAIL);
@@ -46,22 +51,36 @@ public class UserService {
             pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(postUserReq.getPassword());
             postUserReq.setPassword(pwd);
         } catch (Exception ignored) {
+            System.out.println(ignored);
             throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
         }
-        try{
+        //try{
             //encode password User db 저장
             int userIdx = userDao.createUser(postUserReq);
             //jwt 발급.
             String jwt = jwtService.createJwt(userIdx);
             return new PostUserRes(jwt,userIdx);
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
+//        } catch (Exception exception) {
+//            throw new BaseException(DATABASE_ERROR);
+//        }
     }
 
-    public void modifyUserName(PatchUserReq patchUserReq) throws BaseException {
+    public PostUserRes createNoUser(PostUserReq postUserReq) throws BaseException {
+
+        int userIdx = userDao.createUser(postUserReq);
+
+        return new PostUserRes(userIdx);
+
+    }
+
+    public void modifyUserInfo(PatchUserReq patchUserReq,int userIdxByJwt) throws BaseException {
         try{
-            int result = userDao.modifyUserName(patchUserReq);
+            if (patchUserReq.getNewPassword() != null){
+                String pwd;
+                pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(patchUserReq.getNewPassword());
+                patchUserReq.setPassword(pwd);
+            }
+            int result = userDao.modifyUserName(patchUserReq, userIdxByJwt);
             if(result == 0){
                 throw new BaseException(MODIFY_FAIL_USERNAME);
             }
@@ -70,9 +89,9 @@ public class UserService {
         }
     }
 
-    public void deleteUser(PatchUserReq patchUserReq) {
+    public void deleteUser(int userIdxByJwt) {
         try{
-            int result = userDao.deleteUser(patchUserReq);
+            int result = userDao.deleteUser(userIdxByJwt);
             if(result == 0){
                 throw new BaseException(MODIFY_FAIL_USERNAME);
             }
@@ -100,27 +119,15 @@ public class UserService {
         }
     }
 
-    public boolean checkLogout(int userIdx) {
-        try{
-            if (userDao.checkLogout(userIdx) == 0){
-                return true; //logout table 에 없으면
-            }else{
-                throw new BaseException(LOGOUT_USER);
-            }
-        } catch(Exception exception){
-            try {
-                throw new BaseException(DATABASE_ERROR);
-            } catch (BaseException e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
 
-    public boolean checkId(int kakaoId) {
-        if (userDao.checkId(kakaoId)==1){
-            return true;
+    public Integer givePoints(Double points, int userIdx) throws BaseException {
+        try{
+
+            int result = userDao.changePoints(points, userIdx);
+            return result;
+
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
         }
-        return false;//DB 에 없음, 새로 가입
     }
 }

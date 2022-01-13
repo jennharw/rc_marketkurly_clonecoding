@@ -47,7 +47,7 @@ public class UserProvider {
             return getUsersRes;
         }
         catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
+            throw new BaseException(CANNOT_FIND_USERID);
         }
                     }
 
@@ -90,4 +90,41 @@ public class UserProvider {
 
     }
 
+    public GetUserRes getPasswordByEmailAndUsername(String email, String username) throws BaseException {
+
+        try{
+            GetUserRes getUsersRes = userDao.getUsersByEmailAndUsername(email, username);
+            return getUsersRes;
+        }
+        catch (Exception exception) {
+                throw new BaseException(CANNOT_FIND_PASSWORD);
+
+        }
+    }
+
+    public int checkUsername(String username) throws BaseException {
+        try{
+            return userDao.checkUsername(username);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public boolean checkPassword(PatchUserReq patchUserReq) throws BaseException{
+        User user = userDao.getPwdById(patchUserReq);
+        String password;
+        try {
+            //password decode
+            password = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(user.getPassword());
+            if(patchUserReq.getPassword().equals(password)){
+                return true;
+            }
+            else{
+                throw new BaseException(FAILED_TO_LOGIN);
+            }
+
+        } catch (Exception ignored) {
+            throw new BaseException(PASSWORD_DECRYPTION_ERROR);
+        }
+            }
 }

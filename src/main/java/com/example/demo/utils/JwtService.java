@@ -12,9 +12,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.Date;
 
 import static com.example.demo.config.BaseResponseStatus.*;
+import static java.time.LocalDate.*;
 
 @Service
 public class JwtService {
@@ -72,5 +74,34 @@ public class JwtService {
         System.out.println(claims.getBody().get("exp",Date.class));
         return claims.getBody().get("userIdx",Integer.class);
     }
+
+    public boolean checkExp() throws BaseException{
+        //1. JWT 추출
+        String accessToken = getJwt();
+        if(accessToken == null || accessToken.length() == 0){
+            throw new BaseException(EMPTY_JWT);
+        }
+
+        // 2. JWT parsing
+        Jws<Claims> claims;
+        try{
+            claims = Jwts.parser()
+                    .setSigningKey(Secret.JWT_SECRET_KEY)
+                    .parseClaimsJws(accessToken);
+            System.out.println(claims);
+        } catch (Exception ignored) {
+            throw new BaseException(INVALID_JWT);
+        }
+
+        // 3. userIdx 추출
+        System.out.println(claims.getBody());
+        System.out.println(claims.getBody().get("exp",Date.class));
+        Date t = claims.getBody().get("exp", Date.class);
+        System.out.println(t.after(new Date()));
+
+        return t.after(new Date()); //True면 expired_token
+    }
+
+
 
 }

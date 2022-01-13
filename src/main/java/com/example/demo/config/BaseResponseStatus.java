@@ -31,11 +31,19 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
+    POST_USERS_EXISTS_USERNAME(false,2071,"중복된 아이디입니다."),
 
     POST_RES_EMPTY_NAME(false, 2018, "이름을 작성하시오"),
     POST_ITEM_EMPTY_RESTAURANT_ID(false, 2019, "레스토랑 아이디 확인하세요"),
     LOGOUT_USER(false, 2020, "로그아웃한 사용자입니다"),
     LOGOUT_USER_ALREADY(false, 2021, "이미 로그아웃한 사용자입니다"),
+
+    CANNOT_FIND_USERID(false, 2022, "아이디 찾을 수 없습니다"),
+    CANNOT_FIND_PASSWORD(false, 2023, "비밀번호 찾을 수 없습니다"),
+    EXPIRED_TOKEN(false, 2024, "만료된 토큰 입니다"),
+    NOT_BUY_ITEM(false, 2025, "구매하신 물건이 아닙니다"),
+    ALREADY_WRITE_REVIEW(false, 2026, "이미 리뷰하신 물품입니다"),
+    OVER_POINT(false, 2027, "보유 적립금 이상 포인트 사용 불가입니다"),
 
     /**
      * 3000 : Response 오류
@@ -46,6 +54,7 @@ public enum BaseResponseStatus {
     // [POST] /users
     DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,3014,"없는 아이디거나 비밀번호가 틀렸습니다."),
+    FAIL_PASSWORD(false,3015,"비밀번호가 틀렸습니다."),
 
 
 

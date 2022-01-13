@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Builder
@@ -15,12 +16,12 @@ public class GetUserRes {
     private int userId;
     private String name;
     //private String address;
-    //private String level;
+    private int level;
     private int point;
     private String email;
     private String password;
     private String phoneNumber;
-    private LocalDate birthDay;
+    private Date birthDay;
     private String gender;
 
     @Enumerated(EnumType.STRING)

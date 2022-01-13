@@ -12,8 +12,9 @@ import lombok.Setter;
 public class PatchUserReq {
     private int userIdx;
     private String userName;
-
-    public PatchUserReq(int userIdx) {
-        this.userIdx = userIdx;
-    }
+    private String password;
+    private String newPassword;
+    private String newName;
+    private String newPhoneNumber;
+    private String newEmail;
 }
