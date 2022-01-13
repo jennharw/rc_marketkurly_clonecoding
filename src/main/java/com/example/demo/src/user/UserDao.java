@@ -32,9 +32,10 @@ public class UserDao {
                         .name(rs.getString("username"))
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
+                        .name(rs.getString("name"))
                         .phoneNumber(rs.getString("phone_number"))
                         .gender(rs.getString("gender"))
-                        .birthDay(rs.getDate("birth"))
+                        .birthDay(rs.getTimestamp("birth"))
                         .status(GetUserRes.Status.valueOf(rs.getString("status")))
                         .build());
     }
@@ -65,7 +66,7 @@ public class UserDao {
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
                         .phoneNumber(rs.getString("phone_number"))
-                        .birthDay(rs.getDate("birth"))
+                        .birthDay(rs.getTimestamp("birth"))
                         .gender(rs.getString("gender"))
                         .level(rs.getInt("level_id"))
                         .point(rs.getInt("points"))

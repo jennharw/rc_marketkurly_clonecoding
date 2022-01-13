@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 
@@ -34,7 +35,14 @@ public class UserProvider {
     public List<GetUserRes> getUsers() throws BaseException{ //List<GetUserRes>
         try{
             List<GetUserRes> getUserRes = userDao.getUsers();
-            return getUserRes;
+            return getUserRes
+                    .stream()
+                    .map(getUserRes1 -> {
+                        getUserRes1.afterBirthString();
+                        return getUserRes1;
+                    })
+                    .collect(Collectors.toList());
+            //return getUserRes;
         }
         catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -55,6 +63,7 @@ public class UserProvider {
     public GetUserRes getUser(int userIdx) throws BaseException {
         try {
             GetUserRes getUserRes = userDao.getUser(userIdx);
+            getUserRes.afterBirthString();
             return getUserRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);

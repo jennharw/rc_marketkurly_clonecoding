@@ -136,6 +136,18 @@ public class UserV2Controller {
         if(postUserReq.getUsername() == null){
             return new BaseResponse<>(USERS_EMPTY_USER_ID);
         }
+        if(postUserReq.getEmail()== null){
+            return new BaseResponse<>(USERS_EMPTY_EMAIL);
+        }
+        if(postUserReq.getPhoneNumber()== null){
+            return new BaseResponse<>(USERS_EMPTY_PHONE_NUMBER);
+        }
+        if(postUserReq.getBirth()== null){
+            return new BaseResponse<>(USERS_EMPTY_BIRTH);
+        }
+        if(postUserReq.getName()== null){
+            return new BaseResponse<>(USERS_EMPTY_NAME);
+        }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
             return new BaseResponse<>(postUserRes);

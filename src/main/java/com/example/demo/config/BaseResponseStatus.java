@@ -45,6 +45,10 @@ public enum BaseResponseStatus {
     ALREADY_WRITE_REVIEW(false, 2026, "이미 리뷰하신 물품입니다"),
     OVER_POINT(false, 2027, "보유 적립금 이상 포인트 사용 불가입니다"),
 
+    USERS_EMPTY_EMAIL(false, 2028, "이메일 필수입력"),
+    USERS_EMPTY_PHONE_NUMBER(false, 2029, "전화번호 필수입력"),
+    USERS_EMPTY_BIRTH(false, 2030, "생일 필수입력"),
+    USERS_EMPTY_NAME(false, 2031, "이름 필수 입력"),
     /**
      * 3000 : Response 오류
      */

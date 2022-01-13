@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -22,6 +23,10 @@ public class GetUserRes {
     private String password;
     private String phoneNumber;
     private Date birthDay;
+
+
+    private String birthString;
+
     private String gender;
 
     @Enumerated(EnumType.STRING)
@@ -33,5 +38,13 @@ public class GetUserRes {
 
     public GetUserRes(int userId) {
         this.userId = userId;
+    }
+
+    public void afterBirthString() {
+        SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String to  = transFormat.format(this.birthDay);
+        this.birthString  = to;
+        System.out.println(to);
+        //return this;
     }
 }

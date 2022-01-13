@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class PresentDao {
+public class PresentDao { //STATUS 를 선물로 바꿔야 ...
+
     private JdbcTemplate jdbcTemplate;
     public List<PresentRes> getPresentsByUser(int userIdx) {
         String getPresentQuery = "select * from PRESENTS WHERE user_id = ?";

@@ -84,7 +84,6 @@ public class OrderService {
             }
         }
         //장바구니 삭제
-        //선물 시
         if (orderReq.getBasketIds() !=  null ){
             basketService.completeBasket(orderId, orderReq.getBasketIds());
         }
