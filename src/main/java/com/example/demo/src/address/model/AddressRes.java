@@ -12,4 +12,9 @@ public class AddressRes {
     private int userId;
     private String address;
     private String detail_address;
+
+    private String name;
+    private String phoneNumber;
+    private int isSelected;
+    private int isFirst;
 }

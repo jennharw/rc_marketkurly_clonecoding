@@ -1,6 +1,8 @@
 package com.example.demo.src.user;
 
 import com.example.demo.common.util.TokenGenerator;
+import com.example.demo.src.address.AddressService;
+import com.example.demo.src.address.model.AddressReq;
 import com.example.demo.src.basket.BasketProvider;
 import com.example.demo.src.basket.model.BasketRes;
 import com.example.demo.src.coupon.CouponService;
@@ -35,6 +37,7 @@ import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexEmail;
+import static com.example.demo.utils.ValidationRegex.isRegexPhone;
 
 @RestController
 @RequestMapping("/app/users/v2")
@@ -67,6 +70,8 @@ public class UserV2Controller {
 
     private final CouponService couponService;
 
+    private final AddressService addressService;
+
 
     /**
      * 회원 조회 API
@@ -78,15 +83,15 @@ public class UserV2Controller {
     //Query String
     @ResponseBody
     @GetMapping("") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
-    public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String Email) {
+    public BaseResponse<List<GetUserRes>> getUsers() {
         try{
-            if(Email == null){
+            //if(Email == null){
                 List<GetUserRes> getUsersRes = userProvider.getUsers();
                 return new BaseResponse<>(getUsersRes);
-            }
-            //Get Users
-            List<GetUserRes> getUsersRes = userProvider.getUsersByEmail(Email);
-            return new BaseResponse<>(getUsersRes);
+            //}
+//            //Get Users
+//            List<GetUserRes> getUsersRes = userProvider.getUsersByEmail(Email);
+//            return new BaseResponse<>(getUsersRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -119,7 +124,7 @@ public class UserV2Controller {
     // Body
     @ResponseBody
     @PostMapping("")
-    public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) {
+    public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) throws BaseException {
         // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
         System.out.println(postUserReq);
         if(postUserReq.getEmail() == null){
@@ -129,6 +134,14 @@ public class UserV2Controller {
         if(!isRegexEmail(postUserReq.getEmail())){
             return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
         }
+        if(!isRegexPhone(postUserReq.getPhoneNumber())){
+            return new BaseResponse<>(POST_USERS_INVALID_PHONE_NUMBER);
+        }
+        //전화번호중복
+        if (userProvider.checkPhoneNumber(postUserReq.getPhoneNumber()) == 1){
+            return new BaseResponse<>(POST_USERS_EXISTS_PHONE_NUMBER);
+        }
+
         //비밀번호
         if(postUserReq.getPassword() == null){
             return new BaseResponse<>(POST_USERS_EMPTY_PASSWORD);
@@ -142,14 +155,21 @@ public class UserV2Controller {
         if(postUserReq.getPhoneNumber()== null){
             return new BaseResponse<>(USERS_EMPTY_PHONE_NUMBER);
         }
-        if(postUserReq.getBirth()== null){
-            return new BaseResponse<>(USERS_EMPTY_BIRTH);
-        }
+//        if(postUserReq.getBirth()== null){
+//            return new BaseResponse<>(USERS_EMPTY_BIRTH);
+//        }
         if(postUserReq.getName()== null){
             return new BaseResponse<>(USERS_EMPTY_NAME);
         }
+        if(postUserReq.getAddress()== null){
+            return new BaseResponse<>(USERS_EMPTY_ADDRESS);
+        }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
+            addressService.createAddress(postUserRes.getUserIdx(), AddressReq.builder()
+                            .address(postUserReq.getAddress())
+                            .detailAddress(postUserReq.getDetailAddress())
+                    .build());
             return new BaseResponse<>(postUserRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -164,8 +184,12 @@ public class UserV2Controller {
      */
     @ResponseBody
     @PostMapping("/login")
-    public BaseResponse<PostLoginRes> logIn(@RequestBody PostLoginReq postLoginReq){
+    public BaseResponse<PostLoginRes> logIn(@RequestBody PostLoginReq postLoginReq) throws BaseException {
+        if (userProvider.checkUsername(postLoginReq.getUsername()) == 0){
+            return new BaseResponse<>(CANNOT_FIND_USERNAME);
+        }
         try{
+
             System.out.println(postLoginReq.getUsername());
             // TODO: 로그인 값들에 대한 형식적인 validatin 처리해주셔야합니다!
             // TODO: 유저의 status ex) 비활성화된 유저, 탈퇴한 유저 등을 관리해주고 있다면 해당 부분에 대한 validation 처리도 해주셔야합니다.
@@ -178,15 +202,30 @@ public class UserV2Controller {
 
 
     /**
-     * 아이디 찾기 API - 회원 번호 검색 조회 API
+     * 아이디 찾기 API - 이메일로! 회원 번호 검색 조회 API
      * @return BaseResponse<String>
      */
     @ResponseBody
     @GetMapping("/id") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
-    public BaseResponse<String> findId(@RequestParam(required = true) String Email) {
+    public BaseResponse<GetUserRes> findId(@RequestParam(required = true) String Email) {
         try {
-            List<GetUserRes> getUsersRes = userProvider.getUsersByEmail(Email);
-            return new BaseResponse<>(getUsersRes.get(0).getEmail());
+            GetUserRes getUsersRes = userProvider.getUsersByEmail(Email);
+            return new BaseResponse<>(getUsersRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+    @ResponseBody
+    @GetMapping("/id/phone") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
+    public BaseResponse<GetUserRes> findIdByPhone(@RequestParam(required = true) String phoneNumber) {
+        try {
+            if(!isRegexPhone(phoneNumber)){
+                return new BaseResponse<>(POST_USERS_INVALID_PHONE_NUMBER);
+            }
+            GetUserRes getUsersRes = userProvider.getUsersByPhoneNumber(phoneNumber);
+            return new BaseResponse<>(getUsersRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -197,15 +236,65 @@ public class UserV2Controller {
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @GetMapping("/password") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
-    public BaseResponse<String> findPassword(@RequestBody FindUserReq findUserReq) {
+    @PostMapping("/password") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
+    public BaseResponse<PostLoginRes> findPassword(@RequestBody FindUserReq findUserReq) {
         try {
-        GetUserRes getUsersRes = userProvider.getPasswordByEmailAndUsername(findUserReq.getEmail(), findUserReq.getUsername());
-        return new BaseResponse<>(getUsersRes.getPassword());
+            PostLoginRes getUsersRes = userProvider.getPasswordByEmailAndUsername(findUserReq.getEmail(), findUserReq.getUsername());
+            //id, jwt
+            //Token넘기기
+            return new BaseResponse<>(getUsersRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 비밀번호 찾기 API - 회원 번호 와 이메일 검색 조회 API
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PostMapping("/password/phone") // (GET) 127.0.0.1:9000/app/users BaseResponse<List<GetUserRes>>
+    public BaseResponse<PostLoginRes> findPasswordByPhoneNumber(@RequestBody FindUserReq findUserReq) {
+        try {
+            PostLoginRes getUsersRes = userProvider.getPasswordByPhoneNumberAndUsername(findUserReq.getPhoneNumber(), findUserReq.getUsername());
+            //id, jwt
+            //Token넘기기
+            return new BaseResponse<>(getUsersRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+    //새로운비번만들기 //비밀번호 기입없이 , 유저 변경
+    @ResponseBody
+    @PatchMapping("/{userIdx}/new-password")
+    public BaseResponse<String> modifyUserPassword(@RequestBody PatchUserReq patchUserReq){
+        //(jwt token)만 확인
+        try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+//            //userIdx와 접근한 유저가 같은지 확인
+//            if (userIdx != userIdxByJwt) {
+//                return new BaseResponse<>(INVALID_USER_JWT);
+//            }
+            try {
+                patchUserReq.setUserIdx(userIdxByJwt);
+
+                userService.modifyUserInfo(patchUserReq, userIdxByJwt);
+                String result = "변경되었습니다";
+                return new BaseResponse<>(result);
+
+            }
+            catch (BaseException exception) {
+                return new BaseResponse<>((exception.getStatus()));
+            }
+
+        } catch (BaseException e) {
+            return new BaseResponse<>((e.getStatus()));
+        }
+    }
+
 
 
     @ResponseBody

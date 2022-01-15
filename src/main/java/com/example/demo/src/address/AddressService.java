@@ -23,4 +23,13 @@ public class AddressService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int modifyAddress(int userIdxByJwt, AddressReq addressReq) throws BaseException {
+        try{
+            int addressId = addressDao.modifyUserName(addressReq, userIdxByJwt);
+            return addressId;
+        } catch (Exception ignored) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

@@ -49,6 +49,13 @@ public enum BaseResponseStatus {
     USERS_EMPTY_PHONE_NUMBER(false, 2029, "전화번호 필수입력"),
     USERS_EMPTY_BIRTH(false, 2030, "생일 필수입력"),
     USERS_EMPTY_NAME(false, 2031, "이름 필수 입력"),
+    CANNOT_FIND_USERNAME(false, 2032, "아이디, 비밀번호를 확인하세요"),
+    POST_USERS_INVALID_PHONE_NUMBER(false, 2033, "-없이 전화번호 11자리 입력하세요"),
+    POST_USERS_EXISTS_PHONE_NUMBER(false, 2034, "중복된 전화번호 입니다"),
+    USERS_EMPTY_ADDRESS(false, 2034, "주소 필수 입력"),
+
+
+
     /**
      * 3000 : Response 오류
      */

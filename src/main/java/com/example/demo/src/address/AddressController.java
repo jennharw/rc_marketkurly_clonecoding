@@ -71,8 +71,19 @@ public class AddressController {
             return new BaseResponse<>((exception.getStatus()));
 
         }
+    }
+    //주소수정
+    @ResponseBody
+    @PutMapping("/content/{addressIdx}")
+    public BaseResponse<Integer> modifyAddress(@PathVariable("addressIdx") int addressIdx, @RequestBody AddressReq addressReq) throws BaseException {
 
+        try{
+            int addressId = addressService.modifyAddress(addressIdx, addressReq);
+            return new BaseResponse<>(addressId);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
 
+        }
     }
 
 }

@@ -15,6 +15,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
+import java.time.LocalDate;
+
 import static com.example.demo.config.BaseResponseStatus.*;
 
 // Service Create, Update, Delete 의 로직 처리
@@ -37,7 +39,6 @@ public class UserService {
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
         if (userProvider.checkUsername(postUserReq.getUsername()) == 1){
             throw new BaseException(POST_USERS_EXISTS_USERNAME);
-
         }
 
         //중복
@@ -56,6 +57,7 @@ public class UserService {
         }
         //try{
             //encode password User db 저장
+            postUserReq.setCreatedAt(LocalDate.now());
             int userIdx = userDao.createUser(postUserReq);
             //jwt 발급.
             String jwt = jwtService.createJwt(userIdx);

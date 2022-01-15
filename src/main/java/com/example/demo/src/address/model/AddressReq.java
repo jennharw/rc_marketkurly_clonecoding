@@ -13,4 +13,9 @@ import lombok.Setter;
 public class AddressReq {
     private String address;
     private String detailAddress;
+    private int id;
+    private String name;
+    private String phoneNumber;
+    private int isSelected;
+    private int isFirst;
 }

@@ -16,6 +16,7 @@ import java.util.Date;
 public class GetUserRes {
     private int userId;
     private String name;
+    private String username;
     //private String address;
     private int level;
     private int point;
@@ -23,6 +24,8 @@ public class GetUserRes {
     private String password;
     private String phoneNumber;
     private Date birthDay;
+
+    private Date createdAt;
 
 
     private String birthString;

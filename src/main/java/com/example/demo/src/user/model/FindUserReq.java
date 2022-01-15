@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class FindUserReq {
     private String username;
     private String email;
+    private String phoneNumber;
 }

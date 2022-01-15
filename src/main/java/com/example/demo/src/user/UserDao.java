@@ -29,7 +29,7 @@ public class UserDao {
         return (List<GetUserRes>) this.jdbcTemplate.query(getUsersQuery,
                 (rs, rowNum) -> GetUserRes.builder()
                         .userId(rs.getInt("id"))
-                        .name(rs.getString("username"))
+                        .username(rs.getString("username"))
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
                         .name(rs.getString("name"))
@@ -37,21 +37,26 @@ public class UserDao {
                         .gender(rs.getString("gender"))
                         .birthDay(rs.getTimestamp("birth"))
                         .status(GetUserRes.Status.valueOf(rs.getString("status")))
+                        .createdAt(rs.getTimestamp("created_at"))
                         .build());
     }
 
-    public List<GetUserRes> getUsersByEmail(String email){
+    public GetUserRes getUsersByEmail(String email){
         String getUsersByEmailQuery = "select * from USERS where email =?";
         String getUsersByEmailParams = email;
-        return this.jdbcTemplate.query(getUsersByEmailQuery,
+        return this.jdbcTemplate.queryForObject(getUsersByEmailQuery,
                 (rs, rowNum) -> GetUserRes.builder()
                         .userId(rs.getInt("id"))
-                        .name(rs.getString("username"))
+                        .username(rs.getString("username"))
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
+                        .name(rs.getString("name"))
+                        .birthDay(rs.getTimestamp("birth"))
                         .phoneNumber(rs.getString("phone_number"))
                         .gender(rs.getString("gender"))
                         .status(GetUserRes.Status.valueOf(rs.getString("status")))
+                        .createdAt(rs.getTimestamp("created_at"))
+
                         .build(),
                 getUsersByEmailParams);
     }
@@ -62,23 +67,26 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(getUserQuery,
                 (rs, rowNum) -> GetUserRes.builder()
                         .userId(rs.getInt("id"))
-                        .name(rs.getString("username"))
+                        .username(rs.getString("username"))
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
+                        .name(rs.getString("name"))
                         .phoneNumber(rs.getString("phone_number"))
                         .birthDay(rs.getTimestamp("birth"))
                         .gender(rs.getString("gender"))
                         .level(rs.getInt("level_id"))
                         .point(rs.getInt("points"))
                         .status(GetUserRes.Status.valueOf(rs.getString("status")))
+                        .createdAt(rs.getTimestamp("created_at"))
+
                         .build(),
                 getUserParams);
     }
 
 
     public int createUser(PostUserReq postUserReq){ //ID authincrement
-        String createUserQuery = "insert into USERS (username,name,level_id,points, password, email, phone_number, birth, gender,status) VALUES (?,?,1,0,?,?,?,?,?,'USING')";
-        Object[] createUserParams = new Object[]{postUserReq.getUsername(), postUserReq.getName(),postUserReq.getPassword(), postUserReq.getEmail(), postUserReq.getPhoneNumber(), postUserReq.getBirth(), postUserReq.getGender()};
+        String createUserQuery = "insert into USERS (username,name,level_id,points, password, email, phone_number, birth, gender,status, created_at) VALUES (?,?,1,0,?,?,?,?,?,'USING', ?)";
+        Object[] createUserParams = new Object[]{postUserReq.getUsername(), postUserReq.getName(),postUserReq.getPassword(), postUserReq.getEmail(), postUserReq.getPhoneNumber(), postUserReq.getBirth(), postUserReq.getGender(), postUserReq.getCreatedAt()};
 
         this.jdbcTemplate.update(createUserQuery, createUserParams);
 
@@ -160,12 +168,18 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(getUsersByEmailQuery,
                 (rs, rowNum) -> GetUserRes.builder()
                         .userId(rs.getInt("id"))
-                        .name(rs.getString("username"))
+                        .username(rs.getString("username"))
                         .password(rs.getString("password"))
                         .email(rs.getString("email"))
+                        .name(rs.getString("name"))
                         .phoneNumber(rs.getString("phone_number"))
+                        .birthDay(rs.getTimestamp("birth"))
                         .gender(rs.getString("gender"))
+                        .level(rs.getInt("level_id"))
+                        .point(rs.getInt("points"))
                         .status(GetUserRes.Status.valueOf(rs.getString("status")))
+                        .createdAt(rs.getTimestamp("created_at"))
+
                         .build(),
                 getUsersByEmailAndUserParams);
     }
@@ -198,4 +212,35 @@ public class UserDao {
         Object[] modifyUserNameParams = new Object[]{points, userIdx};
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
     }
+
+    public int checkPhoneNumber(String phoneNumber) {
+        String checkPhoneNumberQuery = "select exists(select phone_number from USERS where phone_number = ?)";
+        String checkPhoneNumberParams = phoneNumber;
+        return this.jdbcTemplate.queryForObject(checkPhoneNumberQuery,
+                int.class,
+                checkPhoneNumberParams);
+    }
+
+    public GetUserRes getUsersByPhoneNumber(String phoneNumber) {
+        String getUsersByEmailQuery = "select * from USERS where phone_number =?";
+        String getUsersByEmailParams = phoneNumber;
+        return this.jdbcTemplate.queryForObject(getUsersByEmailQuery,
+                (rs, rowNum) -> GetUserRes.builder()
+                        .userId(rs.getInt("id"))
+                        .username(rs.getString("username"))
+                        .password(rs.getString("password"))
+                        .email(rs.getString("email"))
+                        .name(rs.getString("name"))
+                        .birthDay(rs.getTimestamp("birth"))
+                        .phoneNumber(rs.getString("phone_number"))
+                        .gender(rs.getString("gender"))
+                        .status(GetUserRes.Status.valueOf(rs.getString("status")))
+                        .createdAt(rs.getTimestamp("created_at"))
+
+                        .build(),
+                getUsersByEmailParams);
+    }
+
+//    public GetUserRes getPasswordByPhoneNumberAndUsername(String phoneNumber, String username) {
+//    }
 }

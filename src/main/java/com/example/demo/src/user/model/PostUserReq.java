@@ -20,4 +20,8 @@ public class PostUserReq {
     private String phoneNumber;
     private LocalDate birth;
     private String gender;
+
+    private LocalDate createdAt;
+    private String address;
+    private String detailAddress;
 }

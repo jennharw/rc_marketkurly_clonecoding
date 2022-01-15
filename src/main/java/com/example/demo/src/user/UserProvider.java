@@ -2,6 +2,7 @@ package com.example.demo.src.user;
 
 
 import com.example.demo.config.BaseException;
+import com.example.demo.config.BaseResponse;
 import com.example.demo.config.secret.Secret;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.AES128;
@@ -49,9 +50,9 @@ public class UserProvider {
         }
     }
 
-    public List<GetUserRes> getUsersByEmail(String email) throws BaseException{
+    public GetUserRes getUsersByEmail(String email) throws BaseException{
         try{
-            List<GetUserRes> getUsersRes = userDao.getUsersByEmail(email);
+            GetUserRes getUsersRes = userDao.getUsersByEmail(email);
             return getUsersRes;
         }
         catch (Exception exception) {
@@ -99,21 +100,12 @@ public class UserProvider {
 
     }
 
-    public GetUserRes getPasswordByEmailAndUsername(String email, String username) throws BaseException {
 
-        try{
-            GetUserRes getUsersRes = userDao.getUsersByEmailAndUsername(email, username);
-            return getUsersRes;
-        }
-        catch (Exception exception) {
-                throw new BaseException(CANNOT_FIND_PASSWORD);
-
-        }
-    }
 
     public int checkUsername(String username) throws BaseException {
         try{
             return userDao.checkUsername(username);
+
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -136,4 +128,49 @@ public class UserProvider {
             throw new BaseException(PASSWORD_DECRYPTION_ERROR);
         }
             }
+
+    public int checkPhoneNumber(String phoneNumber) throws BaseException {
+        try{
+            return userDao.checkPhoneNumber(phoneNumber);
+
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public GetUserRes getUsersByPhoneNumber(String phoneNumber) throws BaseException {
+        try{
+            GetUserRes getUsersRes = userDao.getUsersByPhoneNumber(phoneNumber);
+            return getUsersRes;
+        }
+        catch (Exception exception) {
+            throw new BaseException(CANNOT_FIND_USERID);
+        }
+    }
+
+    public PostLoginRes getPasswordByEmailAndUsername(String email, String username) throws BaseException {
+
+        try{
+            GetUserRes getUsersRes = userDao.getUsersByEmailAndUsername(email, username);
+            String jwt = jwtService.createJwt(getUsersRes.getUserId()); //jwt token
+            return new PostLoginRes(getUsersRes.getUserId(),jwt); // id, jwt
+
+            //return getUsersRes;
+        }
+        catch (Exception exception) {
+            throw new BaseException(CANNOT_FIND_PASSWORD);
+
+        }
+    }
+    public PostLoginRes getPasswordByPhoneNumberAndUsername(String phoneNumber, String username) throws BaseException {
+        try{
+            GetUserRes getUsersRes = userDao.getUsersByPhoneNumber(phoneNumber);
+            String jwt = jwtService.createJwt(getUsersRes.getUserId()); //jwt token
+            return new PostLoginRes(getUsersRes.getUserId(),jwt); // id, jwt
+        }
+        catch (Exception exception) {
+            throw new BaseException(CANNOT_FIND_PASSWORD);
+
+        }
+    }
 }
