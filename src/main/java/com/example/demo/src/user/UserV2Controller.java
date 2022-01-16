@@ -5,6 +5,7 @@ import com.example.demo.src.address.AddressService;
 import com.example.demo.src.address.model.AddressReq;
 import com.example.demo.src.basket.BasketProvider;
 import com.example.demo.src.basket.model.BasketRes;
+import com.example.demo.src.basket.model.BasketResNouser;
 import com.example.demo.src.coupon.CouponService;
 import com.example.demo.src.item.model.ItemRes;
 import com.example.demo.src.level.LevelService;
@@ -15,6 +16,7 @@ import com.example.demo.src.order.model.OrderRes;
 import com.example.demo.src.basket.BasketService;
 import com.example.demo.src.basket.model.BasketReq;
 import com.example.demo.src.present.PresentProvider;
+import com.example.demo.src.present.PresentService;
 import com.example.demo.src.present.model.PresentReq;
 import com.example.demo.src.present.model.PresentRes;
 import com.example.demo.src.review.ReviewProvider;
@@ -31,6 +33,7 @@ import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +74,8 @@ public class UserV2Controller {
     private final CouponService couponService;
 
     private final AddressService addressService;
+
+    private final PresentService presentService;
 
 
     /**
@@ -506,6 +511,7 @@ public class UserV2Controller {
                     .price(presentReq.getPrice())
                     .build();
             OrderRes orderRes = orderService.realOrder(orderReq, userIdx);//결제 중
+            int presentId = presentService.givePresent(presentReq, userIdx);//결제 중
 
             //배송 X ->  선물받는 api 처리
             //재고처리
@@ -514,6 +520,7 @@ public class UserV2Controller {
             //presentService.sendMessage(presentReq.getMessage(), presentReq.getMessenger(), presentReq.getReceiver_name())
 
             PresentRes presentRes = PresentRes.builder()
+                    .present_id(presentId)
                     .status(orderRes.getStatus())
                     .message(presentReq.getMessage())
                     .receiverName(presentReq.getReceiverName())
@@ -608,15 +615,20 @@ public class UserV2Controller {
 
     @ResponseBody
     @PostMapping("/nouser/basket")
-    public BaseResponse<BasketRes> createBasketForNoUser(@RequestBody BasketReq basketReq) throws BaseException {
+    public BaseResponse<BasketResNouser> createBasketForNoUser(@RequestBody BasketReq basketReq) throws BaseException {
         try{
 
             //유저생성
             String noUsername = TokenGenerator.randomCharacterWithPrefix(PREFIX_NOUSER_ENTITY);
-            PostUserRes postUserRes = userService.createNoUser(PostUserReq.builder().username(noUsername).build());
+            PostUserRes postUserRes = userService.createNoUser(PostUserReq.builder().username(noUsername)
+                    .password("nouser")
+                    .email("nouser")
+                    .phoneNumber("nouser")
+                    .createdAt(LocalDate.now())
+                    .build());
 
             int basketId = basketService.createBaskets(basketReq, postUserRes.getUserIdx());
-            BasketRes basketRes = BasketRes.builder().basketId(basketId).userId(postUserRes.getUserIdx()).build();
+            BasketResNouser basketRes = BasketResNouser.builder().basketId(basketId).userId(postUserRes.getUserIdx()).jwtToken(postUserRes.getJwt()).build();
 
             return new BaseResponse<>(basketRes);  //이후 주문하기, 임시의 id로
 

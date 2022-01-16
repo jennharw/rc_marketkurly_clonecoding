@@ -68,11 +68,10 @@ public class UserService {
     }
 
     public PostUserRes createNoUser(PostUserReq postUserReq) throws BaseException {
-
+        postUserReq.setCreatedAt(LocalDate.now());
         int userIdx = userDao.createUser(postUserReq);
-
-        return new PostUserRes(userIdx);
-
+        String jwt = jwtService.createJwt(userIdx);
+        return new PostUserRes(jwt, userIdx);
     }
 
     public void modifyUserInfo(PatchUserReq patchUserReq,int userIdxByJwt) throws BaseException {

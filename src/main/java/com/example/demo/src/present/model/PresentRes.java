@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class PresentRes {
+    private int present_id;
     private int orderId;
     private int userId;
     private int paymentId;
