@@ -46,4 +46,10 @@ public class BasketDao {
     }
 
 
+    public int deleteBasket(int basketIdx) {
+        String modifyUserNameQuery = "delete from BASKETS where id =?";
+        Object[] modifyUserNameParams = new Object[]{basketIdx};
+
+        return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
+    }
 }

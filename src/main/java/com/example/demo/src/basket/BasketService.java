@@ -44,4 +44,13 @@ public class BasketService {
 
         }
     }
+
+    public int deleteBasket(int basketIdx) throws BaseException {
+        try{
+            int addressId = basketDao.deleteBasket(basketIdx);
+            return addressId;
+        } catch (Exception ignored) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

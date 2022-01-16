@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
 @Builder
 @NoArgsConstructor
 public class GetItemRes {
-    private int id;
+    private int itemId;
     private String name;
     private int price;
     private String discount_rate;

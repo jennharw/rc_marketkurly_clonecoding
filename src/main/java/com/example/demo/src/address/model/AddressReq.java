@@ -1,10 +1,7 @@
 package com.example.demo.src.address.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -18,4 +15,19 @@ public class AddressReq {
     private String phoneNumber;
     private int isSelected;
     private int isFirst;
+
+    private DetailAddressInfo detailAddressInfo;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DetailAddressInfo{
+        private String receiveSpace;
+        private String receiveSpaceDetail;
+        private String receiveSpaceEnter;
+        private String receiveSpaceEnterDetail;
+        private String deliverCompleteMessage;
+    }
+
 }

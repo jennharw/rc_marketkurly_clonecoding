@@ -4,7 +4,6 @@ package com.example.demo.src.item;
 import com.example.demo.src.item.model.GetHowRes;
 import com.example.demo.src.item.model.GetItemMoreRes;
 import com.example.demo.src.item.model.GetItemRes;
-import com.example.demo.src.user.model.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -80,7 +79,7 @@ public class ItemDao {
         int getItemParams = id;
         return this.jdbcTemplate.queryForObject(getItemQuery,
                 (rs, rowNum) -> GetItemRes.builder().
-                        id(rs.getInt("id")).
+                        itemId(rs.getInt("id")).
                         name(rs.getString("name")).
                         price(rs.getInt("price")).
                         discount_rate(rs.getString("discount_rate")).

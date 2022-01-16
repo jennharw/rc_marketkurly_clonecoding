@@ -74,16 +74,28 @@ public class AddressController {
     }
     //주소수정
     @ResponseBody
-    @PutMapping("/content/{addressIdx}")
-    public BaseResponse<Integer> modifyAddress(@PathVariable("addressIdx") int addressIdx, @RequestBody AddressReq addressReq) throws BaseException {
+    @PatchMapping("/{userIdx}/content/{addressIdx}")
+    public BaseResponse<Integer> modifyAddress(@PathVariable("userIdx") int userIdx, @PathVariable("addressIdx") int addressIdx, @RequestBody AddressReq addressReq) throws BaseException {
 
         try{
-            int addressId = addressService.modifyAddress(addressIdx, addressReq);
+            int addressId = addressService.modifyAddress(userIdx ,addressIdx, addressReq);
             return new BaseResponse<>(addressId);
         } catch (BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
-
         }
     }
+
+    @ResponseBody //주소삭제
+    @DeleteMapping("/kurly/{addressIdx}")
+    public BaseResponse<String> deleteAddress(@PathVariable("addressIdx") int addressIdx) throws BaseException {
+
+        try{
+            int addressId = addressService.deleteAddress(addressIdx);
+            return new BaseResponse<>("삭제되었습니다");
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
 }
