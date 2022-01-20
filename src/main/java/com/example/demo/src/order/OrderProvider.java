@@ -1,7 +1,7 @@
 package com.example.demo.src.order;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.item.model.ItemRes;
+import com.example.demo.src.itemV2Deleted.model.ItemRes;
 import com.example.demo.src.order.model.OrderRes;
 import org.springframework.stereotype.Service;
 

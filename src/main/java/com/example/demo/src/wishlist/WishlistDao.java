@@ -43,4 +43,13 @@ public class WishlistDao {
                         .build(),getWishListParam
         );
     }
+
+    public int deleteWishlist(int userIdxByJwt, WishReq wishReq) {
+        String getWishListQuery = "delete from WISHLISTS WHERE user_id = ? AND item_id = ?";
+        Object[] createUserParams = new Object[]{userIdxByJwt, wishReq.getItemId()};
+
+        return this.jdbcTemplate.update(getWishListQuery,
+                createUserParams
+        );
+    }
 }

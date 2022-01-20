@@ -1,6 +1,7 @@
 package com.example.demo.src.user;
 
 
+import com.example.demo.src.order.model.OrderReq;
 import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -207,7 +208,7 @@ public class UserDao {
         );
     }
 
-    public int changePoints(Double points, int userIdx) {
+    public int changePoints(int points, int userIdx) {
         String modifyUserNameQuery = "update USERS set points = ? where id = ? ";
         Object[] modifyUserNameParams = new Object[]{points, userIdx};
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
@@ -239,6 +240,18 @@ public class UserDao {
 
                         .build(),
                 getUsersByEmailParams);
+    }
+
+    public int createNoUser(OrderReq.InfoNouser infoNouser, int userIdx) {
+        String createUserQuery = "insert into NOUSERS (nouser_no,name, email, phone_number) VALUES (?,?,?,?)";
+        Object[] createUserParams = new Object[]{userIdx, infoNouser.getName(),infoNouser.getEmail(),infoNouser.getPhoneNumber()};
+
+        this.jdbcTemplate.update(createUserQuery, createUserParams);
+
+        String lastInsertIdQuery =  "select last_insert_id()"; //postUserReq.getId();
+
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class); //Integer.parseInt(postUserReq.getId());
+
     }
 
 //    public GetUserRes getPasswordByPhoneNumberAndUsername(String phoneNumber, String username) {

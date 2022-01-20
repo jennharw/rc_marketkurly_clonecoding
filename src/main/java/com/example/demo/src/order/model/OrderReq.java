@@ -1,9 +1,6 @@
 package com.example.demo.src.order.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class OrderReq {
     private int orderId;
     private int userId;
@@ -27,4 +26,18 @@ public class OrderReq {
 
     private List<Integer> couponIdList; // 사용한 쿠폰
     private int points; //사용한 적립금
+
+    public InfoNouser InfoNouser;
+
+    //비회원
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class InfoNouser{
+        private String name;
+        private String email;
+        private String phoneNumber;
+
+    }
 }

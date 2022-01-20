@@ -7,7 +7,8 @@ import com.example.demo.src.basket.BasketProvider;
 import com.example.demo.src.basket.model.BasketRes;
 import com.example.demo.src.basket.model.BasketResNouser;
 import com.example.demo.src.coupon.CouponService;
-import com.example.demo.src.item.model.ItemRes;
+import com.example.demo.src.itemV2Deleted.ItemV2Provider;
+import com.example.demo.src.itemV2Deleted.model.ItemRes;
 import com.example.demo.src.level.LevelService;
 import com.example.demo.src.order.OrderProvider;
 import com.example.demo.src.order.OrderService;
@@ -33,8 +34,13 @@ import com.example.demo.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -77,6 +83,9 @@ public class UserV2Controller {
 
     private final PresentService presentService;
 
+    private final PointService pointService;
+
+    private final ItemV2Provider itemV2Provider;
 
     /**
      * 회원 조회 API
@@ -431,6 +440,17 @@ public class UserV2Controller {
     public BaseResponse<List<BasketRes>> getBasket(@PathVariable("userIdx") int userIdx) throws BaseException {
         try{
             List<BasketRes> baskets = basketProvider.getBaskets(userIdx);
+            baskets.stream()
+                    .forEach(basketRes -> {
+                        try {
+                            basketRes.setGetItemRes(
+                                    itemV2Provider.getItem(basketRes.getItemId())
+                            );
+                        } catch (BaseException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
             return new BaseResponse<>(baskets);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -441,7 +461,16 @@ public class UserV2Controller {
     @PostMapping("/{userIdx}/order")
     public BaseResponse<OrderRes> createOrder(@PathVariable("userIdx") int userIdx, @RequestBody OrderReq orderReq) throws BaseException {
         try{
-            //TODO : 가격계산, 적립금 할인 등
+            //TODO : 가격계산, 적립금 할인 등 ,
+
+            //첫 주문시
+            List<OrderRes> getorderRes = orderProvider.getOrdersByUser(userIdx);
+            if (getorderRes.size() == 0){
+                //첫주문 쿠폰 발행
+                couponService.giveCoupon(6, userIdx);
+                couponService.giveCoupon(7, userIdx);
+
+            }
 
             //주문하기 -> OrderService realOrder ; refactoring
             OrderRes orderRes = orderService.realOrder(orderReq, userIdx);
@@ -469,6 +498,18 @@ public class UserV2Controller {
 //            basketService.completeBasket(orderId, orderReq.getBasketIds());
 
             return new BaseResponse<>(orderRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    //적립금 내역 조회
+    @ResponseBody
+    @GetMapping("/{userIdx}/points")
+    public BaseResponse<GetUserPoints> getPointsByUser(@PathVariable("userIdx") int userIdx){
+        try{
+            GetUserPoints getUserPoints = pointService.getPoints(userIdx);
+            return new BaseResponse<>(getUserPoints);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -620,12 +661,29 @@ public class UserV2Controller {
 
             //유저생성
             String noUsername = TokenGenerator.randomCharacterWithPrefix(PREFIX_NOUSER_ENTITY);
-            PostUserRes postUserRes = userService.createNoUser(PostUserReq.builder().username(noUsername)
-                    .password("nouser")
-                    .email("nouser")
-                    .phoneNumber("nouser")
-                    .createdAt(LocalDate.now())
-                    .build());
+            PostUserRes postUserRes = null;
+            try {
+                postUserRes = userService.createNoUser(PostUserReq.builder().username(noUsername)
+                        .password("nouser")
+                        .email("nouser")
+                        .phoneNumber("nouser")
+                        .createdAt(LocalDate.now())
+                        .build());
+            } catch (BaseException e) {
+                e.printStackTrace();
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (NoSuchPaddingException e) {
+                e.printStackTrace();
+            } catch (IllegalBlockSizeException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (BadPaddingException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            }
 
             int basketId = basketService.createBaskets(basketReq, postUserRes.getUserIdx());
             BasketResNouser basketRes = BasketResNouser.builder().basketId(basketId).userId(postUserRes.getUserIdx()).jwtToken(postUserRes.getJwt()).build();
@@ -649,7 +707,42 @@ public class UserV2Controller {
 
     // -> 결제
 
+    @ResponseBody //비회원 주문하기
+    @PostMapping("/{userIdx}/order/nouser")
+    public BaseResponse<OrderRes> createOrderNouser(@PathVariable("userIdx") int userIdx, @RequestBody OrderReq orderReq) throws BaseException {
+        try{
+            //TODO : 가격계산, 적립금 할인 등
 
+            //주문하기 -> OrderService realOrder ; refactoring
+            OrderRes orderRes = orderService.realOrderNouser(orderReq, userIdx);
+            //배송하기
 
+            int nouserId = userService.createNoUserForOrder(orderReq.getInfoNouser(),userIdx);
 
+//            int orderId = orderService.createOrder(orderReq, userIdx); //1. order생성, 결제 중
+//
+//            //paymentService.createPayment(orderRes.getOrderId(), orderRes.getOrderId()); //2.결제 api 결제, 결제처리 중
+//            OrderRes orderRes = orderService.completePay(orderId); //결제완료
+//
+//            //3. 적립금 누적, 포인트 차감
+//            GetUserRes user = userProvider.getUser(userIdx);
+//            int pointsRateUserLevel = levelService.getLevel(user.getLevel()).getPointsRate();
+//
+//            //적립금 - 주문위해 사용한 포인트 차감 해서  DB 에 저장
+//            int points = user.getPoint() + (orderReq.getPrice() * pointsRateUserLevel) - orderReq.getPoints();
+//            userService.givePoints(points, userIdx); // 적립금 적립
+//
+//            //쿠폰 사용
+//            for (Integer couponId : orderReq.getCouponIdList()){
+//                couponService.useCoupon(couponId, userIdx);
+//            }
+//
+//            //장바구니 삭제
+//            basketService.completeBasket(orderId, orderReq.getBasketIds());
+
+            return new BaseResponse<>(orderRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 }

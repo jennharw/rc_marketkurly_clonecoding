@@ -4,6 +4,7 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.secret.Secret;
+import com.example.demo.src.order.model.OrderReq;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.AES128;
 import com.example.demo.utils.JwtService;
@@ -13,8 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.sql.DataSource;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -67,7 +74,14 @@ public class UserService {
 //        }
     }
 
-    public PostUserRes createNoUser(PostUserReq postUserReq) throws BaseException {
+    public PostUserRes createNoUser(PostUserReq postUserReq) throws BaseException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+        String pwd;
+        try{
+            pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(postUserReq.getPassword());
+            postUserReq.setPassword(pwd);
+        }catch (Exception ig){
+            throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
+        }
         postUserReq.setCreatedAt(LocalDate.now());
         int userIdx = userDao.createUser(postUserReq);
         String jwt = jwtService.createJwt(userIdx);
@@ -121,11 +135,22 @@ public class UserService {
     }
 
 
-    public Integer givePoints(Double points, int userIdx) throws BaseException {
+    public Integer givePoints(int points, int userIdx) throws BaseException {
         try{
 
             int result = userDao.changePoints(points, userIdx);
             return result;
+
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int createNoUserForOrder(OrderReq.InfoNouser infoNouser, int userIdx) throws BaseException {
+        try{
+
+            int nouserOrderIdx = userDao.createNoUser(infoNouser, userIdx);
+            return nouserOrderIdx;
 
         } catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);

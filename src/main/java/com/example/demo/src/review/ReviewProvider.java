@@ -1,12 +1,11 @@
 package com.example.demo.src.review;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.item.model.ItemRes;
+import com.example.demo.src.itemV2Deleted.model.ItemRes;
 import com.example.demo.src.order.OrderProvider;
 import com.example.demo.src.review.model.ReviewRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -57,9 +57,12 @@ public class CouponDao {
         return (CouponRes) this.jdbcTemplate.queryForObject(getCouponQuery,
                 (rs, rowNum) -> CouponRes.builder()
                         .id(rs.getInt("id"))
-                        .couponName(rs.getString("coupon_name"))
+                        .eventId(rs.getInt("event_id"))
 
+                        .couponName(rs.getString("coupon_name"))
                         .discount(rs.getInt("discount"))
+                        .description(rs.getString("description"))
+                        .expired_date(rs.getTimestamp("expired_date"))
                         .build(),getCouponParam);
     }
 
@@ -83,5 +86,20 @@ public class CouponDao {
         String lastInsertIdQuery =  "select last_insert_id()"; //postUserReq.getId();
 
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+    }
+
+    public List<CouponRes> getCoupons() {
+        String getCouponQuery = "select * from COUPONS"; //coupon ID
+        return (List<CouponRes>) this.jdbcTemplate.query(getCouponQuery,
+                (rs, rowNum) -> CouponRes.builder()
+                        .id(rs.getInt("id"))
+                        .eventId(rs.getInt("event_id"))
+
+                        .couponName(rs.getString("coupon_name"))
+                        .discount(rs.getInt("discount"))
+                        .description(rs.getString("description"))
+                        .expired_date(rs.getTimestamp("expired_date"))
+                        .build());
+
     }
 }

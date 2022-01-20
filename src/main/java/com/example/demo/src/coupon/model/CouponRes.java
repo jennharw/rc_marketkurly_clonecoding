@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,5 +18,6 @@ public class CouponRes {
     private int discount;
     private int eventId;
 
-    private LocalDate expired_date;
+    private Date expired_date;
+    private String description;
 }

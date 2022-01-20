@@ -7,6 +7,7 @@ import com.example.demo.src.coupon.CouponService;
 import com.example.demo.src.level.LevelService;
 import com.example.demo.src.order.model.OrderReq;
 import com.example.demo.src.order.model.OrderRes;
+import com.example.demo.src.user.PointService;
 import com.example.demo.src.user.UserProvider;
 import com.example.demo.src.user.UserService;
 import com.example.demo.src.user.model.GetUserRes;
@@ -19,6 +20,8 @@ import static com.example.demo.config.BaseResponseStatus.OVER_POINT;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
+    private final PointService pointService;
 
     private final OrderDao orderDao;
     private final UserProvider userProvider;
@@ -57,6 +60,9 @@ public class OrderService {
         }
     }
 
+
+
+
     public OrderRes realOrder(OrderReq orderReq, int userIdx) throws BaseException {
         GetUserRes user = userProvider.getUser(userIdx);
         if (orderReq.getPoints() > user.getPoint()){
@@ -73,9 +79,22 @@ public class OrderService {
 
         Double pointsRateUserLevel = levelService.getLevel(user.getLevel()).getPointsRate();
 
+        //적립금 올림
+        int points = (int) Math.ceil(orderReq.getPrice() * pointsRateUserLevel);
+
+        //사용자id, 적립금, 주문id
+        pointService.accumulatePoints(userIdx, points, orderId);
+
         //적립금 - 주문위해 사용한 포인트 차감 해서  DB 에 저장
-        Double points = user.getPoint() + (orderReq.getPrice() * pointsRateUserLevel) - orderReq.getPoints();
-        userService.givePoints(points, userIdx); // 적립금 적립
+        int points_acc = user.getPoint() + points - orderReq.getPoints();
+
+        userService.givePoints(points_acc, userIdx); // 적립금 적립
+
+        if (orderReq.getPoints() != 0){ //적립금사용
+            pointService.usePoints(userIdx, orderReq.getPoints(), orderId);
+        }
+
+        //사용자id, 적립금, 주문id
 
         //쿠폰 사용
         if ( orderReq.getCouponIdList() != null){
@@ -83,6 +102,20 @@ public class OrderService {
                 couponService.useCoupon(couponId, userIdx);
             }
         }
+        //장바구니 삭제
+        if (orderReq.getBasketIds() !=  null ){
+            basketService.completeBasket(orderId, orderReq.getBasketIds());
+        }
+        return orderRes;
+    }
+
+    public OrderRes realOrderNouser(OrderReq orderReq, int userIdx) throws BaseException {
+
+        int orderId = createOrder(orderReq, userIdx); //1. order생성, 결제 중
+
+        //paymentService.createPayment(orderRes.getOrderId(), orderRes.getOrderId()); //2.결제 api 결제, 결제처리 중
+        OrderRes orderRes = completePay(orderId); //결제완료
+
         //장바구니 삭제
         if (orderReq.getBasketIds() !=  null ){
             basketService.completeBasket(orderId, orderReq.getBasketIds());

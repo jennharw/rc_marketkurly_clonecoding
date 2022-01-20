@@ -1,6 +1,6 @@
 package com.example.demo.src.review;
 
-import com.example.demo.src.item.model.ItemRes;
+import com.example.demo.src.itemV2Deleted.model.ItemRes;
 import com.example.demo.src.review.model.ReviewReq;
 import com.example.demo.src.review.model.ReviewRes;
 import org.springframework.beans.factory.annotation.Autowired;

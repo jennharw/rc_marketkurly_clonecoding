@@ -18,4 +18,13 @@ public class WishlistService {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public int deleteWishlist(int userIdxByJwt, WishReq wishReq) throws BaseException {
+        try{
+            int wishId =  wishlistDao.deleteWishlist(userIdxByJwt, wishReq);
+            return wishId;
+        }catch (Exception e){
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }

@@ -52,7 +52,7 @@ public enum BaseResponseStatus {
     CANNOT_FIND_USERNAME(false, 2032, "아이디, 비밀번호를 확인하세요"),
     POST_USERS_INVALID_PHONE_NUMBER(false, 2033, "-없이 전화번호 11자리 입력하세요"),
     POST_USERS_EXISTS_PHONE_NUMBER(false, 2034, "중복된 전화번호 입니다"),
-    USERS_EMPTY_ADDRESS(false, 2034, "주소 필수 입력"),
+    USERS_EMPTY_ADDRESS(false, 2035, "주소 필수 입력"),
 
 
 

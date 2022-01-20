@@ -1,6 +1,6 @@
 package com.example.demo.src.order;
 
-import com.example.demo.src.item.model.ItemRes;
+import com.example.demo.src.itemV2Deleted.model.ItemRes;
 import com.example.demo.src.order.model.OrderReq;
 import com.example.demo.src.order.model.OrderRes;
 import com.example.demo.src.review.model.OrderItem;

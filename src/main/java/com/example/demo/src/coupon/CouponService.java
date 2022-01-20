@@ -68,5 +68,31 @@ public class CouponService {
             throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
         }
     }
+
+    public List<CouponRes> getCoupons() throws BaseException {
+        try{
+            List<CouponRes> couponList = couponDao.getCoupons();
+
+            return couponList;
+//
+        }
+
+        catch (Exception e){
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
+
+    public CouponRes getCoupon(int couponId) throws BaseException {
+        try{
+            CouponRes couponList = couponDao.getCoupon(couponId);
+
+            return couponList;
+//
+        }
+
+        catch (Exception e){
+            throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+        }
+    }
 }
 

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class WishReq {
+    private int id;
     private int itemId;
     private int userId;
 }

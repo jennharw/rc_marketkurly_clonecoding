@@ -35,11 +35,11 @@ public class CouponController {
 
     @ResponseBody
     @GetMapping("/coupon/{couponId}/user/{userId}")
-    public BaseResponse<String> giveCoupon(@RequestParam int couponId, @RequestParam int userId) {
+    public BaseResponse<String> giveCoupon(@PathVariable int couponId, @PathVariable int userId) {
 
         try{
             int levelId = couponService.giveCoupon(couponId, userId);
-            String result = "";
+            String result = "쿠폰이 발급되었습니다";
             return new BaseResponse<>(result);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -54,6 +54,31 @@ public class CouponController {
         try{
             int userIdxByJwt = jwtService.getUserIdx();
             List<CouponRes> userCoupons = couponService.getUserCoupon(userIdxByJwt);
+            return new BaseResponse<>(userCoupons);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/{couponId}")
+    public BaseResponse<CouponRes> getCoupons(@PathVariable int couponId) {
+
+        try{
+            CouponRes userCoupons = couponService.getCoupon(couponId);
+            return new BaseResponse<>(userCoupons);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+    @ResponseBody
+    @GetMapping("/all")
+    public BaseResponse<List<CouponRes>> getCoupons() {
+
+        try{
+            List<CouponRes> userCoupons = couponService.getCoupons();
             return new BaseResponse<>(userCoupons);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
